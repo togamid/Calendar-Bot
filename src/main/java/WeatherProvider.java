@@ -58,7 +58,8 @@ public class WeatherProvider {
     }
 
     public Weather[] nextWeatherAllIslands(String seasonName) {
-        Season season = Arrays.stream(this.seasons).filter(season1 -> season1.name.toLowerCase().contains(seasonName.toLowerCase()))
+        Season season = Arrays.stream(this.seasons).filter(season1 -> season1.name.toLowerCase().contains(seasonName.toLowerCase())
+                || seasonName.toLowerCase().contains(season1.name.toLowerCase()))
                 .findFirst().orElseThrow(() -> {return new RuntimeException("Couldn't find season: " + seasonName);});
 
         return Arrays.stream(this.islandWeathers).map(islandWeather -> getNextWeather(season, islandWeather))
@@ -109,20 +110,17 @@ public class WeatherProvider {
             }
         }
 
-        // TODO: handle other special types of weather
-        // TODO: hurricane_blizzard
-
         weather.description = description;
 
         WindStrength windStrength = weatherEntry.windStrength;
-        if(windStrength == null) {
-            windStrength = WindStrength.values()[Util.nextInt(WindStrength.values().length - 1)+1];
+        if(windStrength == null || windStrength == WindStrength.RANDOM ) {
+            windStrength = WindStrength.values()[Util.nextInt(WindStrength.values().length - 2)+1];
         }
         else {
             Integer newWindStrength;
             do {
                 newWindStrength = windStrength.ordinal() + Util.nextInt(3)-1;
-            } while (newWindStrength < 0 || newWindStrength >= WindStrength.values().length);
+            } while (newWindStrength < 0 || newWindStrength >= WindStrength.values().length -1);
             windStrength = WindStrength.values()[newWindStrength];
         }
         weather.windStrength = windStrength;
